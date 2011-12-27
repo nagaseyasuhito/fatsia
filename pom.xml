@@ -20,8 +20,8 @@
 
 	<distributionManagement>
 		<repository>
-			<id>gh-pages</id>
-			<url>file://${project.build.directory}/site</url>
+			<id>github.com</id>
+			<url>scm:git:https://github.com/nagaseyasuhito/nagaseyasuhito.github.com</url>
 		</repository>
 	</distributionManagement>
 
