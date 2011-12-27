@@ -23,6 +23,10 @@
 			<id>github.com</id>
 			<url>scm:git:https://github.com/nagaseyasuhito/nagaseyasuhito.github.com.git</url>
 		</repository>
+		<site>
+			<id>github.com</id>
+			<url>gitsite:https://github.com/nagaseyasuhito/nagaseyasuhito.github.com.git:gh-pages</url>
+		</site>
 	</distributionManagement>
 
 	<repositories>
@@ -63,13 +67,13 @@
 					<goals>deploy</goals>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>2.7</version>
+			</plugin>
 		</plugins>
 		<extensions>
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-scm</artifactId>
-				<version>2.2</version>
-			</extension>
 			<extension>
 				<groupId>org.apache.maven.scm</groupId>
 				<artifactId>maven-scm-manager-plexus</artifactId>
@@ -79,6 +83,11 @@
 				<groupId>org.apache.maven.scm</groupId>
 				<artifactId>maven-scm-provider-gitexe</artifactId>
 				<version>1.6</version>
+			</extension>
+			<extension>
+				<groupId>org.kathrynhuxtable.maven.wagon</groupId>
+				<artifactId>wagon-gitsite</artifactId>
+				<version>0.3.1</version>
 			</extension>
 		</extensions>
 	</build>
