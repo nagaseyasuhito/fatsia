@@ -21,7 +21,7 @@
 	<distributionManagement>
 		<repository>
 			<id>github.com</id>
-			<url>scm:git:https://github.com/nagaseyasuhito/nagaseyasuhito.github.com.git</url>
+			<url>scm:git:https://github.com/nagaseyasuhito/repository/tree/gh-pages</url>
 		</repository>
 	</distributionManagement>
 
