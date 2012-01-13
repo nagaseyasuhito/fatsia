@@ -17,7 +17,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
-import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
@@ -42,29 +41,6 @@ public class BaseManagedEntity extends BaseEntity<Long> {
     @Version
     private Long version;
 
-    @Override
-    public int compareTo(BaseEntity<Long> o) {
-        return new CompareToBuilder().append(this.getId(), o.getId()).toComparison();
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object == null) {
-            return false;
-        }
-
-        if (!this.getClass().isAssignableFrom(object.getClass()) && !object.getClass().isAssignableFrom(this.getClass())) {
-            return false;
-        }
-
-        BaseEntity<?> entity = (BaseEntity<?>) object;
-        if (this.getId() == null || entity.getId() == null) {
-            return this.equals(entity);
-        }
-
-        return this.getId().equals(entity.getId());
-    }
-
     public Date getCreateTimestamp() {
         return this.createTimestamp;
     }
@@ -80,11 +56,6 @@ public class BaseManagedEntity extends BaseEntity<Long> {
 
     public Long getVersion() {
         return this.version;
-    }
-
-    @Override
-    public int hashCode() {
-        return this.getId() == null ? super.hashCode() : this.getId().hashCode();
     }
 
     @PrePersist
@@ -130,5 +101,4 @@ public class BaseManagedEntity extends BaseEntity<Long> {
         reflectionToStringBuilder.setExcludeFieldNames(excludeFieldNames.toArray(new String[0]));
         return reflectionToStringBuilder.toString();
     }
-
 }
