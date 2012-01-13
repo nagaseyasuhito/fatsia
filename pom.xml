@@ -20,8 +20,8 @@
 
 	<distributionManagement>
 		<repository>
-			<id>github.com</id>
-			<url>scm:git:https://github.com/nagaseyasuhito/repository.git</url>
+			<id>mavenrepository.googlecode.com</id>
+			<url>scm:svn:https://mavenrepository.googlecode.com/svn/trunk</url>
 		</repository>
 	</distributionManagement>
 
@@ -38,6 +38,18 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>com.jakewharton</groupId>
+				<artifactId>github-deploy-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
@@ -67,12 +79,7 @@
 					</dependency>
 					<dependency>
 						<groupId>org.apache.maven.scm</groupId>
-						<artifactId>maven-scm-api</artifactId>
-						<version>1.6</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.maven.scm</groupId>
-						<artifactId>maven-scm-provider-gitexe</artifactId>
+						<artifactId>maven-scm-provider-svnexe</artifactId>
 						<version>1.6</version>
 					</dependency>
 				</dependencies>
