@@ -6,25 +6,21 @@ import java.util.SortedMap;
 import com.github.nagaseyasuhito.fatsia.entity.BaseEntity;
 
 public interface BaseDao<T extends BaseEntity<?>> {
-    long countByCriteria(T criteria);
+	long countByCriteria(T criteria);
 
-    T findByCriteria(T criteria);
+	T findByCriteria(T criteria);
 
-    public List<T> findByCriteria(T criteria, SortedMap<String, Boolean> orders);
+	public List<T> findByCriteria(T criteria, SortedMap<String, Boolean> orders);
 
-    public List<T> findByCriteria(T criteria, SortedMap<String, Boolean> orders, int firstResult, int maxResults);
+	public List<T> findByCriteria(T criteria, SortedMap<String, Boolean> orders, int firstResult, int maxResults);
 
-    public List<T> findByCriteria(T criteria, String order, boolean ascending);
+	T findById(Long id);
 
-    public List<T> findByCriteria(T criteria, String order, boolean ascending, int firstResult, int maxResults);
+	T merge(T entity);
 
-    T findById(Long id);
+	void persist(T entity);
 
-    T merge(T entity);
+	T persistOrMerge(T entity);
 
-    void persist(T entity);
-
-    T persistOrMerge(T entity);
-
-    void remove(T entity);
+	void remove(T entity);
 }
