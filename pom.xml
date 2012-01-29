@@ -85,7 +85,6 @@
 
 		<com.google.inject.guice.guice.version>3.0</com.google.inject.guice.guice.version>
 		<org.apache.commons.commons-lang3.version>3.0.1</org.apache.commons.commons-lang3.version>
-		<javassist.javassist.version>3.12.1.GA</javassist.javassist.version>
 		<com.google.guava.guava.version>10.0.1</com.google.guava.guava.version>
 		<org.slf4j.version>1.6.4</org.slf4j.version>
 		<ch.qos.logback.logback-classic.version>1.0.0</ch.qos.logback.logback-classic.version>
@@ -108,11 +107,6 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>${org.apache.commons.commons-lang3.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>javassist</groupId>
-			<artifactId>javassist</artifactId>
-			<version>${javassist.javassist.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
