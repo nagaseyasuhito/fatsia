@@ -11,6 +11,7 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.persistence.Entity;
 import javax.tools.JavaFileObject;
@@ -29,7 +30,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
     private enum Criteria {
         And(And.class) {
             @Override
-            protected CharSequence buildMethods(String clazz) {
+            protected CharSequence buildMethods(CharSequence clazz) {
                 StringBuffer buffer = new StringBuffer();
 
                 buffer.append(this.obtainNotMethods());
@@ -41,7 +42,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
         },
         Between(Between.class) {
             @Override
-            protected CharSequence buildMethods(String clazz) {
+            protected CharSequence buildMethods(CharSequence clazz) {
                 StringBuffer buffer = new StringBuffer();
 
                 buffer.append(this.obtainNotMethods());
@@ -52,7 +53,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
         },
         In(In.class) {
             @Override
-            protected CharSequence buildMethods(String clazz) {
+            protected CharSequence buildMethods(CharSequence clazz) {
                 StringBuffer buffer = new StringBuffer();
 
                 buffer.append(this.obtainNotMethods());
@@ -63,7 +64,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
         },
         Not(Not.class) {
             @Override
-            protected CharSequence buildMethods(String clazz) {
+            protected CharSequence buildMethods(CharSequence clazz) {
                 StringBuffer buffer = new StringBuffer();
 
                 buffer.append(this.obtainNotMethods());
@@ -73,7 +74,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
         },
         Null(Null.class) {
             @Override
-            protected CharSequence buildMethods(String clazz) {
+            protected CharSequence buildMethods(CharSequence clazz) {
                 StringBuffer buffer = new StringBuffer();
 
                 buffer.append(this.obtainNotMethods());
@@ -84,7 +85,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
         },
         Or(Or.class) {
             @Override
-            protected CharSequence buildMethods(String clazz) {
+            protected CharSequence buildMethods(CharSequence clazz) {
                 StringBuffer buffer = new StringBuffer();
 
                 buffer.append(this.obtainNotMethods());
@@ -102,19 +103,18 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
             this.clazz = clazz;
         }
 
-        protected abstract CharSequence buildMethods(String clazz);
+        protected abstract CharSequence buildMethods(CharSequence clazz);
 
         public void buildSource(ProcessingEnvironment processingEnv, TypeElement clazz) throws IOException {
-            String fqcn = clazz.getQualifiedName().toString();
-            String packageName = fqcn.substring(0, fqcn.lastIndexOf('.'));
-            String baseClassName = fqcn.substring(fqcn.lastIndexOf('.') + 1);
-            String className = baseClassName + this.name();
+            CharSequence fqcn = clazz.getQualifiedName();
+            CharSequence packageName = ((PackageElement) clazz.getEnclosingElement()).getQualifiedName();
+            CharSequence className = clazz.getSimpleName();
 
             JavaFileObject javaFileObject = processingEnv.getFiler().createSourceFile(fqcn + this.name());
 
             StringBuffer buffer = new StringBuffer();
             buffer.append("package " + packageName + ";\n\n");
-            buffer.append("public class " + className + " extends " + baseClassName + " implements " + this.clazz.getCanonicalName() + "<" + baseClassName + "> {\n");
+            buffer.append("public class " + className + this.name() + " extends " + className + " implements " + this.clazz.getCanonicalName() + "<" + className + "> {\n");
 
             buffer.append(this.buildMethods(fqcn));
 
@@ -125,7 +125,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
             javaWriter.close();
         }
 
-        protected CharSequence obtainBetweenMethods(String clazz) {
+        protected CharSequence obtainBetweenMethods(CharSequence clazz) {
             StringBuffer buffer = new StringBuffer();
 
             buffer.append("private " + clazz + " from;");
@@ -139,7 +139,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
             return buffer;
         }
 
-        protected CharSequence obtainListMethods(String clazz) {
+        protected CharSequence obtainListMethods(CharSequence clazz) {
             StringBuffer buffer = new StringBuffer();
 
             buffer.append("private java.util.List<" + clazz + "> values = new java.util.ArrayList<" + clazz + ">();");
