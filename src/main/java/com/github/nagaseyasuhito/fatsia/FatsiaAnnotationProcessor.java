@@ -104,12 +104,13 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 
         protected abstract CharSequence buildMethods(String clazz);
 
-        public void buildSource(ProcessingEnvironment processingEnv, String fqcn) throws IOException {
+        public void buildSource(ProcessingEnvironment processingEnv, TypeElement clazz) throws IOException {
+            String fqcn = clazz.getQualifiedName().toString();
             String packageName = fqcn.substring(0, fqcn.lastIndexOf('.'));
             String baseClassName = fqcn.substring(fqcn.lastIndexOf('.') + 1);
             String className = baseClassName + this.name();
 
-            JavaFileObject javaFileObject = processingEnv.getFiler().createSourceFile(className, new Element[0]);
+            JavaFileObject javaFileObject = processingEnv.getFiler().createSourceFile(fqcn + this.name());
 
             StringBuffer buffer = new StringBuffer();
             buffer.append("package " + packageName + ";\n\n");
@@ -202,7 +203,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
                 TypeElement clazz = (TypeElement) element;
 
                 for (Criteria criteria : Criteria.values()) {
-                    criteria.buildSource(this.processingEnv, clazz.getQualifiedName().toString());
+                    criteria.buildSource(this.processingEnv, clazz);
                 }
             }
         } catch (IOException e) {
