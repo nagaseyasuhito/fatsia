@@ -113,11 +113,13 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
             JavaFileObject javaFileObject = processingEnv.getFiler().createSourceFile(fqcn + this.name());
 
             StringBuffer buffer = new StringBuffer();
-            buffer.append("package " + packageName + ";\n\n");
-            buffer.append("public class " + className + this.name() + " extends " + className + " implements " + this.clazz.getCanonicalName() + "<" + className + "> {\n");
-
+            buffer.append("package " + packageName + ";");
+            buffer.append("public class " + className + this.name());
+            buffer.append(" extends " + className);
+            buffer.append(" implements " + this.clazz.getCanonicalName());
+            buffer.append("<" + className + ">");
+            buffer.append("{");
             buffer.append(this.buildMethods(fqcn));
-
             buffer.append("}");
 
             Writer javaWriter = javaFileObject.openWriter();
