@@ -94,8 +94,10 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
             }
         };
 
+        @SuppressWarnings("rawtypes")
         private Class<? extends Not> clazz;
 
+        @SuppressWarnings("rawtypes")
         private Criteria(Class<? extends Not> clazz) {
             this.clazz = clazz;
         }
@@ -104,7 +106,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 
         public void buildSource(ProcessingEnvironment processingEnv, String fqcn) throws IOException {
             String packageName = fqcn.substring(0, fqcn.lastIndexOf('.'));
-            String baseClassName = fqcn.substring(fqcn.lastIndexOf('.'));
+            String baseClassName = fqcn.substring(fqcn.lastIndexOf('.') + 1);
             String className = baseClassName + this.name();
 
             JavaFileObject javaFileObject = processingEnv.getFiler().createSourceFile(className, new Element[0]);
