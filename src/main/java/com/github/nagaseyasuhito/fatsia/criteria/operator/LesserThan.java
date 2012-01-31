@@ -1,4 +1,4 @@
-package com.github.nagaseyasuhito.fatsia.dao.operator;
+package com.github.nagaseyasuhito.fatsia.criteria.operator;
 
 public interface LesserThan<T extends Comparable<? super T>> extends Not<T> {
     T getValue();

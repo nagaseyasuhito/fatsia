@@ -1,13 +1,13 @@
 package com.github.nagaseyasuhito.fatsia.criteria;
 
 import com.github.nagaseyasuhito.fatsia.Source;
-import com.github.nagaseyasuhito.fatsia.dao.operator.Between;
-import com.github.nagaseyasuhito.fatsia.dao.operator.GreaterEqual;
-import com.github.nagaseyasuhito.fatsia.dao.operator.GreaterThan;
-import com.github.nagaseyasuhito.fatsia.dao.operator.LesserEqual;
-import com.github.nagaseyasuhito.fatsia.dao.operator.LesserThan;
-import com.github.nagaseyasuhito.fatsia.dao.operator.Like;
-import com.github.nagaseyasuhito.fatsia.dao.operator.Not;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.Between;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.GreaterEqual;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.GreaterThan;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.LesserEqual;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.LesserThan;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.Like;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.Not;
 
 public enum OperationalCriteria implements Criteria {
     Between(Between.class, Source.Between), GreaterEqual(GreaterEqual.class, Source.Comparison), GreaterThan(GreaterThan.class, Source.Comparison), LesserEqual(LesserEqual.class,

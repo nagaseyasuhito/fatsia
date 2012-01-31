@@ -1,11 +1,11 @@
 package com.github.nagaseyasuhito.fatsia.criteria;
 
 import com.github.nagaseyasuhito.fatsia.Source;
-import com.github.nagaseyasuhito.fatsia.dao.operator.And;
-import com.github.nagaseyasuhito.fatsia.dao.operator.In;
-import com.github.nagaseyasuhito.fatsia.dao.operator.Not;
-import com.github.nagaseyasuhito.fatsia.dao.operator.Null;
-import com.github.nagaseyasuhito.fatsia.dao.operator.Or;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.And;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.In;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.Not;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.Null;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.Or;
 
 public enum ConditionalCriteria implements Criteria {
     And(And.class, Source.List), In(In.class, Source.List), Not(Not.class, Source.Not), Null(Null.class, Source.Null), Or(Or.class, Source.List);

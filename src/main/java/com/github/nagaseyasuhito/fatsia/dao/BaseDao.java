@@ -19,11 +19,11 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import com.github.nagaseyasuhito.fatsia.dao.operator.And;
-import com.github.nagaseyasuhito.fatsia.dao.operator.Between;
-import com.github.nagaseyasuhito.fatsia.dao.operator.Not;
-import com.github.nagaseyasuhito.fatsia.dao.operator.Null;
-import com.github.nagaseyasuhito.fatsia.dao.operator.Or;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.And;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.Between;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.Not;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.Null;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.Or;
 import com.github.nagaseyasuhito.fatsia.entity.BaseEntity;
 import com.google.common.collect.Lists;
 
