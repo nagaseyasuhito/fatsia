@@ -1,4 +1,4 @@
-package com.github.nagaseyasuhito.fatsia.dao.criteria;
+package com.github.nagaseyasuhito.fatsia.dao.operator;
 
 public interface Between<T extends Comparable<? super T>> extends Not<T> {
     T getFrom();

@@ -1,4 +1,4 @@
-package com.github.nagaseyasuhito.fatsia.dao.criteria;
+package com.github.nagaseyasuhito.fatsia.dao.operator;
 
 public interface Null<T> extends Not<T> {
     boolean isNull();

@@ -1,4 +1,4 @@
-package com.github.nagaseyasuhito.fatsia.dao.criteria;
+package com.github.nagaseyasuhito.fatsia.dao.operator;
 
 import java.util.List;
 
