@@ -1,7 +1,4 @@
 package com.github.nagaseyasuhito.fatsia.criteria.operator;
 
-public interface LesserEqual<T extends Comparable<? super T>> extends Not<T> {
-    T getValue();
-
-    void setValue(T value);
+public interface LesserEqual<T extends Comparable<?>> extends Comparison<T> {
 }

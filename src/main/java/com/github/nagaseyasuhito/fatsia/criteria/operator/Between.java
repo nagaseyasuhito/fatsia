@@ -1,6 +1,6 @@
 package com.github.nagaseyasuhito.fatsia.criteria.operator;
 
-public interface Between<T extends Comparable<? super T>> extends Not<T> {
+public interface Between<T extends Comparable<?>> extends Not<T> {
     T getFrom();
 
     T getTo();

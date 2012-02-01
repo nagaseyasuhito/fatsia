@@ -15,12 +15,17 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import com.github.nagaseyasuhito.fatsia.criteria.operator.And;
 import com.github.nagaseyasuhito.fatsia.criteria.operator.Between;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.GreaterEqual;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.GreaterThan;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.LesserEqual;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.LesserThan;
 import com.github.nagaseyasuhito.fatsia.criteria.operator.Not;
 import com.github.nagaseyasuhito.fatsia.criteria.operator.Null;
 import com.github.nagaseyasuhito.fatsia.criteria.operator.Or;
@@ -107,11 +112,35 @@ public abstract class BaseDao<S extends Serializable, T extends BaseEntity<S>> {
             return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.between(path.<Comparable> get(propertyName), from, to));
         }
 
+        if (property instanceof GreaterEqual<?>) {
+            Comparable<?> value = ((GreaterEqual<?>) property).getValue();
+            return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.greaterThanOrEqualTo(path.<Comparable> get(propertyName), value));
+        }
+
+        if (property instanceof GreaterThan<?>) {
+            Comparable<?> value = ((GreaterThan<?>) property).getValue();
+            return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.greaterThan(path.<Comparable> get(propertyName), value));
+        }
+
+        if (property instanceof LesserEqual<?>) {
+            Comparable<?> value = ((LesserEqual<?>) property).getValue();
+            return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.lessThanOrEqualTo(path.<Comparable> get(propertyName), value));
+        }
+
+        if (property instanceof LesserThan<?>) {
+            Comparable<?> value = ((LesserThan<?>) property).getValue();
+            return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.lessThan(path.<Comparable> get(propertyName), value));
+        }
+
         if (property instanceof Collection<?>) {
             List<Predicate> predicates = Lists.newArrayList();
             for (Object object : (Collection<?>) property) {
                 if (object instanceof BaseEntity) {
-                    predicates.addAll(this.buildChildQuery((BaseEntity) object, criteriaBuilder, criteriaQuery, ((Root<?>) path).join(propertyName)));
+                    if (path instanceof From) {
+                        predicates.addAll(this.buildChildQuery((BaseEntity) object, criteriaBuilder, criteriaQuery, ((From) path).join(propertyName)));
+                    } else {
+                        throw new IllegalAccessError();
+                    }
                 } else {
                     return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.equal(path.get(propertyName), property));
                 }
@@ -216,7 +245,7 @@ public abstract class BaseDao<S extends Serializable, T extends BaseEntity<S>> {
     }
 
     private Predicate processNotPredicate(Object property, CriteriaBuilder criteriaBuilder, Predicate predicate) {
-        if (property instanceof Not && ((Not) property).isNot()) {
+        if (property instanceof Not && ((Not<?>) property).isNot()) {
             return criteriaBuilder.not(predicate);
         } else {
             return predicate;
