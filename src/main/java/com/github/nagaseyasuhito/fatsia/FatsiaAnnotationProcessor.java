@@ -37,7 +37,6 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
     }
 
     public void buildClass(TypeElement element, Criteria[] criterias) throws IOException {
-        CharSequence fqcn = element.getQualifiedName();
         CharSequence className = element.getSimpleName();
         CharSequence packageName = ((PackageElement) element.getEnclosingElement()).getQualifiedName();
 
