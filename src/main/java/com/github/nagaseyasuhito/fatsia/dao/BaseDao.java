@@ -16,6 +16,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -26,6 +27,7 @@ import com.github.nagaseyasuhito.fatsia.criteria.operator.GreaterEqual;
 import com.github.nagaseyasuhito.fatsia.criteria.operator.GreaterThan;
 import com.github.nagaseyasuhito.fatsia.criteria.operator.LesserEqual;
 import com.github.nagaseyasuhito.fatsia.criteria.operator.LesserThan;
+import com.github.nagaseyasuhito.fatsia.criteria.operator.Like;
 import com.github.nagaseyasuhito.fatsia.criteria.operator.Not;
 import com.github.nagaseyasuhito.fatsia.criteria.operator.Null;
 import com.github.nagaseyasuhito.fatsia.criteria.operator.Or;
@@ -80,17 +82,6 @@ public abstract class BaseDao<S extends Serializable, T extends BaseEntity<S>> {
             return null;
         }
 
-        if (property instanceof Or<?>) {
-            List<Predicate> predicates = Lists.newArrayList();
-            for (Object object : (Or<?>) property) {
-                Predicate predicate = this.buildExpression(criteriaBuilder, criteriaQuery, path, propertyName, object);
-                if (predicate != null) {
-                    predicates.add(predicate);
-                }
-            }
-            return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.or(predicates.toArray(new Predicate[0])));
-        }
-
         if (property instanceof And<?>) {
             List<Predicate> predicates = Lists.newArrayList();
             for (Object object : (And<?>) property) {
@@ -100,6 +91,17 @@ public abstract class BaseDao<S extends Serializable, T extends BaseEntity<S>> {
                 }
             }
             return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.and(predicates.toArray(new Predicate[0])));
+        }
+
+        if (property instanceof Or<?> || property instanceof Collection<?>) {
+            List<Predicate> predicates = Lists.newArrayList();
+            for (Object object : (/* Or<?> */Collection<?>) property) {
+                Predicate predicate = this.buildExpression(criteriaBuilder, criteriaQuery, path, propertyName, object);
+                if (predicate != null) {
+                    predicates.add(predicate);
+                }
+            }
+            return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.or(predicates.toArray(new Predicate[0])));
         }
 
         if (property instanceof In<?>) {
@@ -132,25 +134,13 @@ public abstract class BaseDao<S extends Serializable, T extends BaseEntity<S>> {
             return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.lessThan(path.<Comparable> get(propertyName), value));
         }
 
-        if (property instanceof Collection<?>) {
-            List<Predicate> predicates = Lists.newArrayList();
-            for (Object object : (Collection<?>) property) {
-                if (object instanceof BaseEntity) {
-                    if (path instanceof From) {
-                        predicates.addAll(this.buildChildQuery((BaseEntity) object, criteriaBuilder, criteriaQuery, ((From) path).join(propertyName)));
-                    } else {
-                        throw new IllegalAccessError();
-                    }
-                } else {
-                    return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.equal(path.get(propertyName), property));
-                }
-            }
-
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        if (property instanceof Like<?>) {
+            CharSequence value = ((Like<?>) property).getValue();
+            return value == null ? null : this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.like(path.<String> get(propertyName), value.toString()));
         }
 
         if (property instanceof Null) {
-            if (((Null) property).isNull()) {
+            if (((Null<?>) property).isNull()) {
                 return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.isNull(path.get(propertyName)));
             } else {
                 return null;
@@ -158,10 +148,12 @@ public abstract class BaseDao<S extends Serializable, T extends BaseEntity<S>> {
         }
 
         if (property instanceof BaseEntity) {
-            if (((BaseEntity) property).getId() != null) {
+            if (((BaseEntity<?>) property).getId() != null) {
                 return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.equal(path.get(propertyName), property));
             } else {
-                return criteriaBuilder.and(this.buildChildQuery((BaseEntity) property, criteriaBuilder, criteriaQuery, path.get(propertyName)).toArray(new Predicate[0]));
+                Join<?, ?> join = ((From<?, ?>) path).join(propertyName);
+                ((From<?, ?>) path).fetch(propertyName);
+                return criteriaBuilder.and(this.buildChildQuery((BaseEntity<?>) property, criteriaBuilder, criteriaQuery, join).toArray(new Predicate[0]));
             }
         } else {
             return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.equal(path.get(propertyName), property));
@@ -207,7 +199,7 @@ public abstract class BaseDao<S extends Serializable, T extends BaseEntity<S>> {
             }
         }
 
-        TypedQuery<T> query = this.entityManager.createQuery(criteriaQuery.select(this.buildQuery(criteria, criteriaBuilder, criteriaQuery, root)));
+        TypedQuery<T> query = this.entityManager.createQuery(criteriaQuery.select(this.buildQuery(criteria, criteriaBuilder, criteriaQuery, root)).distinct(true));
         if (firstResult >= 0) {
             query.setFirstResult(firstResult);
         }
