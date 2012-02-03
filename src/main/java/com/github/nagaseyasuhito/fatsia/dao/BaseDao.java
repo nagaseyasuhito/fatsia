@@ -16,7 +16,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -90,7 +89,7 @@ public abstract class BaseDao<S extends Serializable, T extends BaseEntity<S>> {
                     predicates.add(predicate);
                 }
             }
-            return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.and(predicates.toArray(new Predicate[0])));
+            return predicates.size() == 0 ? null : this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.and(predicates.toArray(new Predicate[0])));
         }
 
         if (property instanceof Or<?> || property instanceof Collection<?>) {
@@ -101,7 +100,7 @@ public abstract class BaseDao<S extends Serializable, T extends BaseEntity<S>> {
                     predicates.add(predicate);
                 }
             }
-            return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.or(predicates.toArray(new Predicate[0])));
+            return predicates.size() == 0 ? null : this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.or(predicates.toArray(new Predicate[0])));
         }
 
         if (property instanceof In<?>) {
@@ -111,27 +110,27 @@ public abstract class BaseDao<S extends Serializable, T extends BaseEntity<S>> {
         if (property instanceof Between<?>) {
             Comparable<?> from = ((Between<?>) property).getFrom();
             Comparable<?> to = ((Between<?>) property).getTo();
-            return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.between(path.<Comparable> get(propertyName), from, to));
+            return from == null || to == null ? null : this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.between(path.<Comparable> get(propertyName), from, to));
         }
 
         if (property instanceof GreaterEqual<?>) {
             Comparable<?> value = ((GreaterEqual<?>) property).getValue();
-            return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.greaterThanOrEqualTo(path.<Comparable> get(propertyName), value));
+            return value == null ? null : this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.greaterThanOrEqualTo(path.<Comparable> get(propertyName), value));
         }
 
         if (property instanceof GreaterThan<?>) {
             Comparable<?> value = ((GreaterThan<?>) property).getValue();
-            return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.greaterThan(path.<Comparable> get(propertyName), value));
+            return value == null ? null : this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.greaterThan(path.<Comparable> get(propertyName), value));
         }
 
         if (property instanceof LesserEqual<?>) {
             Comparable<?> value = ((LesserEqual<?>) property).getValue();
-            return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.lessThanOrEqualTo(path.<Comparable> get(propertyName), value));
+            return value == null ? null : this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.lessThanOrEqualTo(path.<Comparable> get(propertyName), value));
         }
 
         if (property instanceof LesserThan<?>) {
             Comparable<?> value = ((LesserThan<?>) property).getValue();
-            return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.lessThan(path.<Comparable> get(propertyName), value));
+            return value == null ? null : this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.lessThan(path.<Comparable> get(propertyName), value));
         }
 
         if (property instanceof Like<?>) {
@@ -151,9 +150,7 @@ public abstract class BaseDao<S extends Serializable, T extends BaseEntity<S>> {
             if (((BaseEntity<?>) property).getId() != null) {
                 return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.equal(path.get(propertyName), property));
             } else {
-                Join<?, ?> join = ((From<?, ?>) path).join(propertyName);
-                ((From<?, ?>) path).fetch(propertyName);
-                return criteriaBuilder.and(this.buildChildQuery((BaseEntity<?>) property, criteriaBuilder, criteriaQuery, join).toArray(new Predicate[0]));
+                return criteriaBuilder.and(this.buildChildQuery((BaseEntity<?>) property, criteriaBuilder, criteriaQuery, ((From<?, ?>) path).join(propertyName)).toArray(new Predicate[0]));
             }
         } else {
             return this.processNotPredicate(property, criteriaBuilder, criteriaBuilder.equal(path.get(propertyName), property));
