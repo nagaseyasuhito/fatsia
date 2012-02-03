@@ -1,11 +1,6 @@
 package com.github.nagaseyasuhito.fatsia.entity;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -17,8 +12,6 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
-
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 @MappedSuperclass
 public class BaseManagedEntity extends BaseEntity<Long> {
@@ -80,24 +73,5 @@ public class BaseManagedEntity extends BaseEntity<Long> {
 
     public void setUpdateTimestamp(Date updateTimestamp) {
         this.updateTimestamp = updateTimestamp;
-    }
-
-    @Override
-    public String toString() {
-        Class<?> clazz = this.getClass();
-        List<String> excludeFieldNames = new ArrayList<String>();
-        do {
-            for (Field field : clazz.getDeclaredFields()) {
-                Class<?> type = field.getType();
-
-                if (Collection.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type)) {
-                    excludeFieldNames.add(field.getName());
-                }
-            }
-        } while (null != (clazz = clazz.getSuperclass()));
-
-        ReflectionToStringBuilder reflectionToStringBuilder = new ReflectionToStringBuilder(this);
-        reflectionToStringBuilder.setExcludeFieldNames(excludeFieldNames.toArray(new String[0]));
-        return reflectionToStringBuilder.toString();
     }
 }
