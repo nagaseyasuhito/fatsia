@@ -25,17 +25,6 @@
 		</repository>
 	</distributionManagement>
 
-	<repositories>
-		<repository>
-			<id>jboss</id>
-			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
-		</repository>
-		<repository>
-			<id>guice</id>
-			<url>http://guice-maven.googlecode.com/svn/trunk</url>
-		</repository>
-	</repositories>
-
 	<build>
 		<plugins>
 			<plugin>
