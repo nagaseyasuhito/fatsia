@@ -32,16 +32,20 @@ import com.github.nagaseyasuhito.fatsia.entity.BaseEntity;
 import com.google.common.collect.Lists;
 
 public class Criterias {
+    private static final Criterias INSTANCE = new Criterias();
+
+    private Criterias() {
+    }
 
     @SuppressWarnings("unchecked")
-    private static List<Predicate> buildChildQuery(Criteria<?> criteria, CriteriaBuilder criteriaBuilder, CriteriaQuery<?> criteriaQuery, Path<?> path) {
+    protected List<Predicate> buildChildQuery(Criteria<?> criteria, CriteriaBuilder criteriaBuilder, CriteriaQuery<?> criteriaQuery, Path<?> path) {
         List<Predicate> predicates = Lists.newArrayList();
 
         for (Map.Entry<String, Object> entry : ((Map<String, Object>) new BeanMap(criteria)).entrySet()) {
             if (entry.getKey().equals("not") || entry.getKey().equals("class")) {
                 continue;
             }
-            Predicate predicate = buildExpression(criteriaBuilder, criteriaQuery, path, entry.getKey(), entry.getValue());
+            Predicate predicate = this.buildExpression(criteriaBuilder, criteriaQuery, path, entry.getKey(), entry.getValue());
             if (predicate != null) {
                 predicates.add(predicate);
             }
@@ -51,7 +55,7 @@ public class Criterias {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private static Predicate buildExpression(CriteriaBuilder criteriaBuilder, CriteriaQuery<?> criteriaQuery, Path<?> path, String propertyName, Object property) {
+    protected Predicate buildExpression(CriteriaBuilder criteriaBuilder, CriteriaQuery<?> criteriaQuery, Path<?> path, String propertyName, Object property) {
         if (property == null) {
             return null;
         }
@@ -59,84 +63,84 @@ public class Criterias {
         if (property instanceof And<?>) {
             List<Predicate> predicates = Lists.newArrayList();
             for (Object object : (And<?>) property) {
-                Predicate predicate = buildExpression(criteriaBuilder, criteriaQuery, path, propertyName, object);
+                Predicate predicate = this.buildExpression(criteriaBuilder, criteriaQuery, path, propertyName, object);
                 if (predicate != null) {
                     predicates.add(predicate);
                 }
             }
-            return predicates.size() == 0 ? null : processNotPredicate((And<?>) property, criteriaBuilder, criteriaBuilder.and(predicates.toArray(new Predicate[0])));
+            return predicates.size() == 0 ? null : this.processNotPredicate((And<?>) property, criteriaBuilder, criteriaBuilder.and(predicates.toArray(new Predicate[0])));
         }
 
         if (property instanceof In<?>) {
-            return processNotPredicate((In<?>) property, criteriaBuilder, path.get(propertyName).in((In<?>) property));
+            return this.processNotPredicate((In<?>) property, criteriaBuilder, path.get(propertyName).in((In<?>) property));
         }
 
         if (property instanceof Or<?>) {
             List<Predicate> predicates = Lists.newArrayList();
             for (Object object : (Or<?>) property) {
-                Predicate predicate = buildExpression(criteriaBuilder, criteriaQuery, path, propertyName, object);
+                Predicate predicate = this.buildExpression(criteriaBuilder, criteriaQuery, path, propertyName, object);
                 if (predicate != null) {
                     predicates.add(predicate);
                 }
             }
-            return predicates.size() == 0 ? null : processNotPredicate((Or<?>) property, criteriaBuilder, criteriaBuilder.or(predicates.toArray(new Predicate[0])));
+            return predicates.size() == 0 ? null : this.processNotPredicate((Or<?>) property, criteriaBuilder, criteriaBuilder.or(predicates.toArray(new Predicate[0])));
         }
 
         if (property instanceof Between<?>) {
             Comparable<?> from = ((Between<?>) property).getFrom();
             Comparable<?> to = ((Between<?>) property).getTo();
-            return from == null || to == null ? null : processNotPredicate((Between<?>) property, criteriaBuilder, criteriaBuilder.between(path.<Comparable> get(propertyName), from, to));
+            return from == null || to == null ? null : this.processNotPredicate((Between<?>) property, criteriaBuilder, criteriaBuilder.between(path.<Comparable> get(propertyName), from, to));
         }
 
         if (property instanceof Equal<?>) {
             Comparable<?> value = ((Equal<?>) property).getValue();
-            return value == null ? null : processNotPredicate((Equal<?>) property, criteriaBuilder, criteriaBuilder.equal(path.<Comparable> get(propertyName), value));
+            return value == null ? null : this.processNotPredicate((Equal<?>) property, criteriaBuilder, criteriaBuilder.equal(path.<Comparable> get(propertyName), value));
         }
 
         if (property instanceof GreaterEqual<?>) {
             Comparable<?> value = ((GreaterEqual<?>) property).getValue();
-            return value == null ? null : processNotPredicate((GreaterEqual<?>) property, criteriaBuilder, criteriaBuilder.greaterThanOrEqualTo(path.<Comparable> get(propertyName), value));
+            return value == null ? null : this.processNotPredicate((GreaterEqual<?>) property, criteriaBuilder, criteriaBuilder.greaterThanOrEqualTo(path.<Comparable> get(propertyName), value));
         }
 
         if (property instanceof GreaterThan<?>) {
             Comparable<?> value = ((GreaterThan<?>) property).getValue();
-            return value == null ? null : processNotPredicate((GreaterThan<?>) property, criteriaBuilder, criteriaBuilder.greaterThan(path.<Comparable> get(propertyName), value));
+            return value == null ? null : this.processNotPredicate((GreaterThan<?>) property, criteriaBuilder, criteriaBuilder.greaterThan(path.<Comparable> get(propertyName), value));
         }
 
         if (property instanceof LesserEqual<?>) {
             Comparable<?> value = ((LesserEqual<?>) property).getValue();
-            return value == null ? null : processNotPredicate((LesserEqual<?>) property, criteriaBuilder, criteriaBuilder.lessThanOrEqualTo(path.<Comparable> get(propertyName), value));
+            return value == null ? null : this.processNotPredicate((LesserEqual<?>) property, criteriaBuilder, criteriaBuilder.lessThanOrEqualTo(path.<Comparable> get(propertyName), value));
         }
 
         if (property instanceof LesserThan<?>) {
             Comparable<?> value = ((LesserThan<?>) property).getValue();
-            return value == null ? null : processNotPredicate((LesserThan<?>) property, criteriaBuilder, criteriaBuilder.lessThan(path.<Comparable> get(propertyName), value));
+            return value == null ? null : this.processNotPredicate((LesserThan<?>) property, criteriaBuilder, criteriaBuilder.lessThan(path.<Comparable> get(propertyName), value));
         }
 
         if (property instanceof Like<?>) {
             CharSequence value = ((Like<?>) property).getValue();
-            return value == null ? null : processNotPredicate((Like<?>) property, criteriaBuilder, criteriaBuilder.like(path.<String> get(propertyName), value.toString()));
+            return value == null ? null : this.processNotPredicate((Like<?>) property, criteriaBuilder, criteriaBuilder.like(path.<String> get(propertyName), value.toString()));
         }
 
         if (property instanceof Null) {
-            return processNotPredicate((Null) property, criteriaBuilder, criteriaBuilder.isNull(path.get(propertyName)));
+            return this.processNotPredicate((Null) property, criteriaBuilder, criteriaBuilder.isNull(path.get(propertyName)));
         }
 
         if (property instanceof EntityCriteria<?>) {
-            List<Predicate> predicates = buildChildQuery((Criteria<?>) property, criteriaBuilder, criteriaQuery, ((From<?, ?>) path).join(propertyName));
+            List<Predicate> predicates = this.buildChildQuery((Criteria<?>) property, criteriaBuilder, criteriaQuery, ((From<?, ?>) path).join(propertyName));
             return predicates.size() == 0 ? null : criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         }
 
         throw new IllegalAccessError("unexpected path");
     }
 
-    private static <X> Root<X> buildQuery(Criteria<X> criteria, CriteriaBuilder criteriaBuilder, CriteriaQuery<?> criteriaQuery, Root<X> root) {
-        criteriaQuery.where(buildChildQuery(criteria, criteriaBuilder, criteriaQuery, root).toArray(new Predicate[0]));
+    protected <X> Root<X> buildQuery(Criteria<X> criteria, CriteriaBuilder criteriaBuilder, CriteriaQuery<?> criteriaQuery, Root<X> root) {
+        criteriaQuery.where(this.buildChildQuery(criteria, criteriaBuilder, criteriaQuery, root).toArray(new Predicate[0]));
 
         return root;
     }
 
-    private static Predicate processNotPredicate(Criteria<?> property, CriteriaBuilder criteriaBuilder, Predicate predicate) {
+    protected Predicate processNotPredicate(Criteria<?> property, CriteriaBuilder criteriaBuilder, Predicate predicate) {
         if (property.isNot()) {
             return criteriaBuilder.not(predicate);
         } else {
@@ -149,7 +153,7 @@ public class Criterias {
         CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(clazz);
         Root<T> root = criteriaQuery.from(clazz);
 
-        return entityManager.createQuery(criteriaQuery.select(buildQuery(criteria, criteriaBuilder, criteriaQuery, root))).getSingleResult();
+        return entityManager.createQuery(criteriaQuery.select(INSTANCE.buildQuery(criteria, criteriaBuilder, criteriaQuery, root))).getSingleResult();
     }
 
     public static <T> List<T> find(EntityManager entityManager, Class<T> clazz, Criteria<T> criteria, SortedMap<String, Boolean> orders) {
@@ -169,7 +173,7 @@ public class Criterias {
             }
         }
 
-        TypedQuery<T> query = entityManager.createQuery(criteriaQuery.select(buildQuery(criteria, criteriaBuilder, criteriaQuery, root)).distinct(true));
+        TypedQuery<T> query = entityManager.createQuery(criteriaQuery.select(INSTANCE.buildQuery(criteria, criteriaBuilder, criteriaQuery, root)).distinct(true));
         if (firstResult >= 0) {
             query.setFirstResult(firstResult);
         }
@@ -185,7 +189,7 @@ public class Criterias {
         CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
         Root<T> root = criteriaQuery.from(clazz);
 
-        return entityManager.createQuery(criteriaQuery.select(criteriaBuilder.count(buildQuery(criteria, criteriaBuilder, criteriaQuery, root)))).getSingleResult();
+        return entityManager.createQuery(criteriaQuery.select(criteriaBuilder.count(INSTANCE.buildQuery(criteria, criteriaBuilder, criteriaQuery, root)))).getSingleResult();
     }
 
     public static <T> And<T> and() {
