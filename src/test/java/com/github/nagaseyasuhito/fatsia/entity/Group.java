@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -29,6 +30,12 @@ public class Group {
 	private Long id;
 
 	/**
+	 * 親グループ。
+	 */
+	@ManyToOne
+	private Group parent;
+
+	/**
 	 * グループ名。
 	 */
 	@Column(nullable = true, unique = true)
@@ -39,6 +46,12 @@ public class Group {
 	 */
 	@OneToMany(mappedBy = "group")
 	private List<User> users = Lists.newArrayList();
+
+	/**
+	 * 子グループ。
+	 */
+	@OneToMany(mappedBy = "parent")
+	private List<Group> children = Lists.newArrayList();
 
 	public Long getId() {
 		return this.id;
@@ -62,5 +75,21 @@ public class Group {
 
 	public void setUsers(List<User> users) {
 		this.users = users;
+	}
+
+	public Group getParent() {
+		return this.parent;
+	}
+
+	public void setParent(Group parent) {
+		this.parent = parent;
+	}
+
+	public List<Group> getChildren() {
+		return this.children;
+	}
+
+	public void setChildren(List<Group> children) {
+		this.children = children;
 	}
 }

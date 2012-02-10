@@ -57,6 +57,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("package " + packageName + ";");
 		buffer.append("public class " + className + "Criteria extends " + EntityCriteria.class.getCanonicalName() + "<" + fqcn + "> {");
+		buffer.append("public Class<" + fqcn + "> getEntityClass() { return " + fqcn + ".class; }");
 		buffer.append(this.buildSource(element));
 		buffer.append("}");
 
@@ -107,7 +108,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 			CharSequence parameter = setter.getParameters().get(0).getSimpleName();
 			DeclaredType type = (DeclaredType) getter.getReturnType();
 
-			buffer.append("private " + this.buildType(type) + parameter + ";");
+			buffer.append("private " + this.buildType(type) + parameter + (this.isCollection(type) ? " = " + Criterias.class.getCanonicalName() + ".or();" : ";"));
 
 			buffer.append("public void ");
 			buffer.append(setter.getSimpleName());
@@ -124,15 +125,21 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 	}
 
 	public CharSequence buildType(DeclaredType type) {
+		Elements elements = this.processingEnv.getElementUtils();
+
+		if (this.isCollection(type)) {
+			return elements.getTypeElement(List.class.getCanonicalName()) + "<" + Criteria.class.getCanonicalName() + "<" + Joiner.on(",").join(type.getTypeArguments()) + ">>";
+		} else {
+			return Criteria.class.getCanonicalName() + "<? extends " + type + ">";
+		}
+	}
+
+	public boolean isCollection(DeclaredType type) {
 		Types types = this.processingEnv.getTypeUtils();
 		Elements elements = this.processingEnv.getElementUtils();
 
 		TypeElement collection = elements.getTypeElement(Collection.class.getCanonicalName());
-		if (types.isAssignable(type, types.erasure(collection.asType()))) {
-			return type.asElement() + "<" + Criteria.class.getCanonicalName() + "<" + Joiner.on(",").join(type.getTypeArguments()) + ">>";
-		} else {
-			return Criteria.class.getCanonicalName() + "<? extends " + type + ">";
-		}
+		return types.isAssignable(type, types.erasure(collection.asType()));
 	}
 
 	public boolean isSetter(ExecutableElement element) {

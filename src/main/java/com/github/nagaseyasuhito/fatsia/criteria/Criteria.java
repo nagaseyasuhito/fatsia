@@ -11,8 +11,8 @@ public class Criteria<T> {
 		this.not = not;
 	}
 
-	public Criteria<T> not(boolean not) {
-		this.setNot(not);
+	public Criteria<T> not() {
+		this.setNot(true);
 		return this;
 	}
 }

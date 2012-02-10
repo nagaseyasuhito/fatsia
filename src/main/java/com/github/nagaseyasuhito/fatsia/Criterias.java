@@ -41,7 +41,7 @@ public class Criterias {
 		List<Predicate> predicates = Lists.newArrayList();
 
 		for (Map.Entry<String, Object> entry : ((Map<String, Object>) new BeanMap(criteria)).entrySet()) {
-			if (entry.getKey().equals("not") || entry.getKey().equals("class")) {
+			if (entry.getKey().equals("not") || entry.getKey().equals("class") || entry.getKey().equals("entityClass")) {
 				continue;
 			}
 			Predicate predicate = this.buildExpression(criteriaBuilder, criteriaQuery, path, entry.getKey(), entry.getValue());
@@ -147,22 +147,22 @@ public class Criterias {
 		}
 	}
 
-	public static <T> T find(EntityManager entityManager, Class<T> clazz, Criteria<T> criteria) {
+	public static <T> T find(EntityManager entityManager, EntityCriteria<T> criteria) {
 		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-		CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(clazz);
-		Root<T> root = criteriaQuery.from(clazz);
+		CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(criteria.getEntityClass());
+		Root<T> root = criteriaQuery.from(criteria.getEntityClass());
 
 		return entityManager.createQuery(criteriaQuery.select(INSTANCE.buildQuery(criteria, criteriaBuilder, criteriaQuery, root))).getSingleResult();
 	}
 
-	public static <T> List<T> find(EntityManager entityManager, Class<T> clazz, Criteria<T> criteria, SortedMap<String, Boolean> orders) {
-		return find(entityManager, clazz, criteria, orders, -1, -1);
+	public static <T> List<T> find(EntityManager entityManager, EntityCriteria<T> criteria, SortedMap<String, Boolean> orders) {
+		return find(entityManager, criteria, orders, -1, -1);
 	}
 
-	public static <T> List<T> find(EntityManager entityManager, Class<T> clazz, Criteria<T> criteria, SortedMap<String, Boolean> orders, int firstResult, int maxResults) {
+	public static <T> List<T> find(EntityManager entityManager, EntityCriteria<T> criteria, SortedMap<String, Boolean> orders, int firstResult, int maxResults) {
 		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-		CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(clazz);
-		Root<T> root = criteriaQuery.from(clazz);
+		CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(criteria.getEntityClass());
+		Root<T> root = criteriaQuery.from(criteria.getEntityClass());
 
 		for (Map.Entry<String, Boolean> entry : orders.entrySet()) {
 			if (entry.getValue()) {
@@ -183,10 +183,10 @@ public class Criterias {
 
 	}
 
-	public static <T> long count(Criteria<T> criteria, Class<T> clazz, EntityManager entityManager) {
+	public static <T> long count(EntityCriteria<T> criteria, EntityManager entityManager) {
 		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
-		Root<T> root = criteriaQuery.from(clazz);
+		Root<T> root = criteriaQuery.from(criteria.getEntityClass());
 
 		return entityManager.createQuery(criteriaQuery.select(criteriaBuilder.count(INSTANCE.buildQuery(criteria, criteriaBuilder, criteriaQuery, root)))).getSingleResult();
 	}
