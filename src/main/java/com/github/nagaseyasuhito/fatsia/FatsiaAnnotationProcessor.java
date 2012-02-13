@@ -35,141 +35,150 @@ import com.google.common.collect.Lists;
 @SupportedAnnotationTypes("javax.persistence.Entity")
 public class FatsiaAnnotationProcessor extends AbstractProcessor {
 
-	@Override
-	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment environment) {
-		Set<? extends Element> elements = environment.getElementsAnnotatedWith(Entity.class);
+    @Override
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment environment) {
+        Set<? extends Element> elements = environment.getElementsAnnotatedWith(Entity.class);
 
-		try {
-			for (Element element : elements) {
-				this.buildClass((TypeElement) element);
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		return true;
-	}
+        try {
+            for (Element element : elements) {
+                this.buildClass((TypeElement) element);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
 
-	public void buildClass(TypeElement element) throws IOException {
-		CharSequence className = element.getSimpleName();
-		CharSequence packageName = ((PackageElement) element.getEnclosingElement()).getQualifiedName();
-		CharSequence fqcn = element.getQualifiedName();
+    public void buildClass(TypeElement element) throws IOException {
+        CharSequence className = element.getSimpleName();
+        CharSequence packageName = ((PackageElement) element.getEnclosingElement()).getQualifiedName();
+        CharSequence fqcn = element.getQualifiedName();
 
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("package " + packageName + ".criteria;");
-		buffer.append("public class " + className + "Criteria extends " + EntityCriteria.class.getCanonicalName() + "<" + fqcn + "> {");
-		buffer.append("public Class<" + fqcn + "> getEntityClass() { return " + fqcn + ".class; }");
-		buffer.append(this.buildSource(element));
-		buffer.append("}");
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("package " + packageName + ".criteria;");
+        buffer.append("public class " + className + "Criteria extends " + EntityCriteria.class.getCanonicalName() + "<" + fqcn + "> {");
+        buffer.append("public Class<" + fqcn + "> getEntityClass() { return " + fqcn + ".class; }");
+        buffer.append(this.buildSource(element));
+        buffer.append("}");
 
-		JavaFileObject javaFileObject = this.processingEnv.getFiler().createSourceFile(packageName + ".criteria." + className + "Criteria");
-		Writer javaWriter = javaFileObject.openWriter();
-		javaWriter.write(buffer.toString());
-		javaWriter.close();
-	}
+        JavaFileObject javaFileObject = this.processingEnv.getFiler().createSourceFile(packageName + ".criteria." + className + "Criteria");
+        Writer javaWriter = javaFileObject.openWriter();
+        javaWriter.write(buffer.toString());
+        javaWriter.close();
+    }
 
-	public CharSequence buildSource(TypeElement element) {
-		Types types = this.processingEnv.getTypeUtils();
+    public CharSequence buildSource(TypeElement element) {
+        Types types = this.processingEnv.getTypeUtils();
 
-		StringBuffer buffer = new StringBuffer();
+        StringBuffer buffer = new StringBuffer();
 
-		Element currentElement = element;
+        Element currentElement = element;
 
-		List<Element> elements = Lists.newArrayList();
-		while (currentElement instanceof TypeElement) {
-			elements.addAll(currentElement.getEnclosedElements());
-			currentElement = types.asElement(((TypeElement) currentElement).getSuperclass());
-		}
+        List<Element> elements = Lists.newArrayList();
+        while (currentElement instanceof TypeElement) {
+            elements.addAll(currentElement.getEnclosedElements());
+            currentElement = types.asElement(((TypeElement) currentElement).getSuperclass());
+        }
 
-		final Collection<ExecutableElement> methods = Collections2.transform(Collections2.filter(elements, new Predicate<Element>() {
-			@Override
-			public boolean apply(Element input) {
-				return input instanceof ExecutableElement;
-			}
-		}), new Function<Element, ExecutableElement>() {
-			@Override
-			public ExecutableElement apply(Element input) {
-				return (ExecutableElement) input;
-			}
-		});
+        final Collection<ExecutableElement> methods = Collections2.transform(Collections2.filter(elements, new Predicate<Element>() {
+            @Override
+            public boolean apply(Element input) {
+                return input instanceof ExecutableElement;
+            }
+        }), new Function<Element, ExecutableElement>() {
+            @Override
+            public ExecutableElement apply(Element input) {
+                return (ExecutableElement) input;
+            }
+        });
 
-		Collection<ExecutableElement> setters = Collections2.filter(methods, new Predicate<ExecutableElement>() {
-			@Override
-			public boolean apply(ExecutableElement input) {
-				return FatsiaAnnotationProcessor.this.isSetter(input);
-			}
-		});
+        Collection<ExecutableElement> setters = Collections2.filter(methods, new Predicate<ExecutableElement>() {
+            @Override
+            public boolean apply(ExecutableElement input) {
+                return FatsiaAnnotationProcessor.this.isSetter(input);
+            }
+        });
 
-		for (ExecutableElement setter : setters) {
-			ExecutableElement getter = this.obtainPairedGetter(setter, methods);
-			if (getter == null) {
-				continue;
-			}
+        for (ExecutableElement setter : setters) {
+            ExecutableElement getter = this.obtainPairedGetter(setter, methods);
+            if (getter == null) {
+                continue;
+            }
 
-			CharSequence parameter = setter.getParameters().get(0).getSimpleName();
-			DeclaredType type = (DeclaredType) getter.getReturnType();
+            CharSequence parameter = setter.getParameters().get(0).getSimpleName();
+            DeclaredType type = (DeclaredType) getter.getReturnType();
 
-			buffer.append("private " + this.buildType(type) + parameter + (this.isCollection(type) ? " = " + Criterias.class.getCanonicalName() + ".or();" : ";"));
+            buffer.append("private " + this.buildType(type) + parameter + (this.isCollection(type) ? " = " + Criterias.class.getCanonicalName() + ".or();" : ";"));
 
-			buffer.append("public void ");
-			buffer.append(setter.getSimpleName());
-			buffer.append("(" + this.buildType(type) + " value) ");
-			buffer.append("{ this." + parameter + " = value; }");
+            buffer.append("public void ");
+            buffer.append(setter.getSimpleName());
+            buffer.append("(" + this.buildType(type) + " value) ");
+            buffer.append("{ this." + parameter + " = value; }");
 
-			buffer.append("public " + this.buildType(type));
-			buffer.append(getter.getSimpleName());
-			buffer.append("() ");
-			buffer.append("{ return this." + parameter + "; }");
-		}
+            buffer.append("public " + this.buildType(type));
+            buffer.append(getter.getSimpleName());
+            buffer.append("() ");
+            buffer.append("{ return this." + parameter + "; }");
 
-		return buffer;
-	}
+            buffer.append("public " + element.getSimpleName() + "Criteria ");
+            buffer.append(parameter);
+            buffer.append("(" + this.buildType(type) + " value)");
+            buffer.append("{ this." + parameter + " = value; return this; }");
+        }
 
-	public CharSequence buildType(DeclaredType type) {
-		Elements elements = this.processingEnv.getElementUtils();
+        // buffer.append("public " + element.getSimpleName() + "Criteria ");
+        // buffer.append("not()");
+        // buffer.append("{ this.setNot(true); return this; }");
 
-		if (this.isCollection(type)) {
-			return elements.getTypeElement(List.class.getCanonicalName()) + "<" + Criteria.class.getCanonicalName() + "<" + Joiner.on(",").join(type.getTypeArguments()) + ">>";
-		} else {
-			return Criteria.class.getCanonicalName() + "<? extends " + type + ">";
-		}
-	}
+        return buffer;
+    }
 
-	public boolean isCollection(DeclaredType type) {
-		Types types = this.processingEnv.getTypeUtils();
-		Elements elements = this.processingEnv.getElementUtils();
+    public CharSequence buildType(DeclaredType type) {
+        Elements elements = this.processingEnv.getElementUtils();
 
-		TypeElement collection = elements.getTypeElement(Collection.class.getCanonicalName());
-		return types.isAssignable(type, types.erasure(collection.asType()));
-	}
+        if (this.isCollection(type)) {
+            return elements.getTypeElement(List.class.getCanonicalName()) + "<" + Criteria.class.getCanonicalName() + "<" + Joiner.on(",").join(type.getTypeArguments()) + ">>";
+        } else {
+            return Criteria.class.getCanonicalName() + "<? extends " + type + ">";
+        }
+    }
 
-	public boolean isSetter(ExecutableElement element) {
-		if (!element.getSimpleName().toString().startsWith("set")) {
-			return false;
-		}
-		if (element.getReturnType().getKind() != TypeKind.VOID) {
-			return false;
-		}
-		if (element.getParameters().size() != 1) {
-			return false;
-		}
+    public boolean isCollection(DeclaredType type) {
+        Types types = this.processingEnv.getTypeUtils();
+        Elements elements = this.processingEnv.getElementUtils();
 
-		return true;
-	}
+        TypeElement collection = elements.getTypeElement(Collection.class.getCanonicalName());
+        return types.isAssignable(type, types.erasure(collection.asType()));
+    }
 
-	public ExecutableElement obtainPairedGetter(final ExecutableElement setter, Collection<ExecutableElement> methods) {
-		return Iterables.find(methods, new Predicate<ExecutableElement>() {
-			@Override
-			public boolean apply(ExecutableElement input) {
-				String methodName = input.getSimpleName().toString();
-				if (!methodName.startsWith("get") && !methodName.startsWith("is")) {
-					return false;
-				}
-				if (input.getParameters().size() != 0) {
-					return false;
-				}
+    public boolean isSetter(ExecutableElement element) {
+        if (!element.getSimpleName().toString().startsWith("set")) {
+            return false;
+        }
+        if (element.getReturnType().getKind() != TypeKind.VOID) {
+            return false;
+        }
+        if (element.getParameters().size() != 1) {
+            return false;
+        }
 
-				return methodName.substring(methodName.startsWith("get") ? 3 : 2).equals(setter.getSimpleName().toString().substring(3));
-			}
-		}, null);
-	}
+        return true;
+    }
+
+    public ExecutableElement obtainPairedGetter(final ExecutableElement setter, Collection<ExecutableElement> methods) {
+        return Iterables.find(methods, new Predicate<ExecutableElement>() {
+            @Override
+            public boolean apply(ExecutableElement input) {
+                String methodName = input.getSimpleName().toString();
+                if (!methodName.startsWith("get") && !methodName.startsWith("is")) {
+                    return false;
+                }
+                if (input.getParameters().size() != 0) {
+                    return false;
+                }
+
+                return methodName.substring(methodName.startsWith("get") ? 3 : 2).equals(setter.getSimpleName().toString().substring(3));
+            }
+        }, null);
+    }
 }
