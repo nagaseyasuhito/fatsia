@@ -2,6 +2,7 @@ package com.github.nagaseyasuhito.fatsia;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -126,6 +127,15 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
             buffer.append("{ this." + parameter + " = value; return this; }");
         }
 
+        buffer.append("public " + Collection.class.getCanonicalName() + "<" + String.class.getCanonicalName() + "> getTargetProperties() { return " + Arrays.class.getCanonicalName() + ".asList(");
+        buffer.append(Joiner.on(",").join(Collections2.transform(setters, new Function<ExecutableElement, String>() {
+
+            @Override
+            public String apply(ExecutableElement input) {
+                return "\"" + input.getParameters().get(0).getSimpleName() + "\"";
+            }
+        })));
+        buffer.append("); }");
         return buffer;
     }
 

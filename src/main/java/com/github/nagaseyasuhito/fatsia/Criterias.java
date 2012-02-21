@@ -1,5 +1,9 @@
 package com.github.nagaseyasuhito.fatsia;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -12,8 +16,6 @@ import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-
-import org.apache.commons.beanutils.BeanMap;
 
 import com.github.nagaseyasuhito.fatsia.criteria.And;
 import com.github.nagaseyasuhito.fatsia.criteria.Between;
@@ -36,15 +38,29 @@ public class Criterias {
     private Criterias() {
     }
 
-    @SuppressWarnings("unchecked")
-    protected List<Predicate> buildChildQuery(Criteria<?> criteria, CriteriaBuilder criteriaBuilder, CriteriaQuery<?> criteriaQuery, Path<?> path) {
+    protected List<Predicate> buildChildQuery(EntityCriteria<?> criteria, CriteriaBuilder criteriaBuilder, CriteriaQuery<?> criteriaQuery, Path<?> path) {
         List<Predicate> predicates = Lists.newArrayList();
 
-        for (Map.Entry<String, Object> entry : ((Map<String, Object>) new BeanMap(criteria)).entrySet()) {
-            if (entry.getKey().equals("not") || entry.getKey().equals("class") || entry.getKey().equals("entityClass")) {
-                continue;
+        for (String property : criteria.getTargetProperties()) {
+            PropertyDescriptor propertyDescriptor;
+            try {
+                propertyDescriptor = new PropertyDescriptor(property, criteria.getClass());
+            } catch (IntrospectionException e) {
+                throw new RuntimeException(e);
             }
-            Predicate predicate = this.buildExpression(criteriaBuilder, criteriaQuery, path, entry.getKey(), entry.getValue());
+
+            Method readMethod = propertyDescriptor.getReadMethod();
+
+            Predicate predicate;
+            try {
+                predicate = this.buildExpression(criteriaBuilder, criteriaQuery, path, property, readMethod.invoke(criteria, new Object[0]));
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
             if (predicate != null) {
                 predicates.add(predicate);
             }
@@ -126,14 +142,14 @@ public class Criterias {
         }
 
         if (property instanceof EntityCriteria<?>) {
-            List<Predicate> predicates = this.buildChildQuery((Criteria<?>) property, criteriaBuilder, criteriaQuery, ((From<?, ?>) path).join(propertyName));
+            List<Predicate> predicates = this.buildChildQuery((EntityCriteria<?>) property, criteriaBuilder, criteriaQuery, ((From<?, ?>) path).join(propertyName));
             return predicates.size() == 0 ? null : criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         }
 
         throw new IllegalAccessError("unexpected path");
     }
 
-    protected <X> Root<X> buildQuery(Criteria<X> criteria, CriteriaBuilder criteriaBuilder, CriteriaQuery<?> criteriaQuery, Root<X> root) {
+    protected <X> Root<X> buildQuery(EntityCriteria<X> criteria, CriteriaBuilder criteriaBuilder, CriteriaQuery<?> criteriaQuery, Root<X> root) {
         criteriaQuery.where(this.buildChildQuery(criteria, criteriaBuilder, criteriaQuery, root).toArray(new Predicate[0]));
 
         return root;
