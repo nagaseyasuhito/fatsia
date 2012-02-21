@@ -126,10 +126,6 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
             buffer.append("{ this." + parameter + " = value; return this; }");
         }
 
-        // buffer.append("public " + element.getSimpleName() + "Criteria ");
-        // buffer.append("not()");
-        // buffer.append("{ this.setNot(true); return this; }");
-
         return buffer;
     }
 
