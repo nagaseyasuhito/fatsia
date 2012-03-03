@@ -25,8 +25,8 @@ import com.github.nagaseyasuhito.fatsia.criteria.Equal;
 import com.github.nagaseyasuhito.fatsia.criteria.GreaterEqual;
 import com.github.nagaseyasuhito.fatsia.criteria.GreaterThan;
 import com.github.nagaseyasuhito.fatsia.criteria.In;
-import com.github.nagaseyasuhito.fatsia.criteria.LesserEqual;
-import com.github.nagaseyasuhito.fatsia.criteria.LesserThan;
+import com.github.nagaseyasuhito.fatsia.criteria.LessEqual;
+import com.github.nagaseyasuhito.fatsia.criteria.LessThan;
 import com.github.nagaseyasuhito.fatsia.criteria.Like;
 import com.github.nagaseyasuhito.fatsia.criteria.Null;
 import com.github.nagaseyasuhito.fatsia.criteria.Or;
@@ -122,14 +122,14 @@ public class Criterias {
             return value == null ? null : this.processNotPredicate((GreaterThan<?>) property, criteriaBuilder, criteriaBuilder.greaterThan(path.<Comparable> get(propertyName), value));
         }
 
-        if (property instanceof LesserEqual<?>) {
-            Comparable<?> value = ((LesserEqual<?>) property).getValue();
-            return value == null ? null : this.processNotPredicate((LesserEqual<?>) property, criteriaBuilder, criteriaBuilder.lessThanOrEqualTo(path.<Comparable> get(propertyName), value));
+        if (property instanceof LessEqual<?>) {
+            Comparable<?> value = ((LessEqual<?>) property).getValue();
+            return value == null ? null : this.processNotPredicate((LessEqual<?>) property, criteriaBuilder, criteriaBuilder.lessThanOrEqualTo(path.<Comparable> get(propertyName), value));
         }
 
-        if (property instanceof LesserThan<?>) {
-            Comparable<?> value = ((LesserThan<?>) property).getValue();
-            return value == null ? null : this.processNotPredicate((LesserThan<?>) property, criteriaBuilder, criteriaBuilder.lessThan(path.<Comparable> get(propertyName), value));
+        if (property instanceof LessThan<?>) {
+            Comparable<?> value = ((LessThan<?>) property).getValue();
+            return value == null ? null : this.processNotPredicate((LessThan<?>) property, criteriaBuilder, criteriaBuilder.lessThan(path.<Comparable> get(propertyName), value));
         }
 
         if (property instanceof Like<?>) {
@@ -243,11 +243,11 @@ public class Criterias {
         return new GreaterThan<T>(value);
     }
 
-    public static <T extends Comparable<T>> LesserEqual<T> le(T value) {
-        return new LesserEqual<T>(value);
+    public static <T extends Comparable<T>> LessEqual<T> le(T value) {
+        return new LessEqual<T>(value);
     }
 
-    public static <T extends Comparable<T>> LesserThan<T> lt(T value) {
-        return new LesserThan<T>(value);
+    public static <T extends Comparable<T>> LessThan<T> lt(T value) {
+        return new LessThan<T>(value);
     }
 }
