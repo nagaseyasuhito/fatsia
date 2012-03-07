@@ -41,7 +41,6 @@
 				<version>2.2.2</version>
 				<configuration>
 					<tagNameFormat>@{project.version}</tagNameFormat>
-					<goals>deploy</goals>
 				</configuration>
 			</plugin>
 			<plugin>
