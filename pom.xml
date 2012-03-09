@@ -3,7 +3,7 @@
 	<groupId>com.github.nagaseyasuhito</groupId>
 	<artifactId>fatsia</artifactId>
 	<packaging>jar</packaging>
-	<version>1.2.3-SNAPSHOT</version>
+	<version>1.2.5-SNAPSHOT</version>
 
 	<name>fatsia</name>
 	<url>http://github.com/nagaseyasuhito/fatsia</url>
@@ -41,7 +41,6 @@
 				<version>2.2.2</version>
 				<configuration>
 					<tagNameFormat>@{project.version}</tagNameFormat>
-					<goals>deploy</goals>
 				</configuration>
 			</plugin>
 			<plugin>
