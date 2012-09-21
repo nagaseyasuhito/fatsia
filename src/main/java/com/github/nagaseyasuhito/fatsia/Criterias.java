@@ -168,14 +168,25 @@ public class Criterias {
 		CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(criteria.getEntityClass());
 		Root<T> root = criteriaQuery.from(criteria.getEntityClass());
 
-		return entityManager.createQuery(criteriaQuery.select(INSTANCE.buildQuery(criteria, criteriaBuilder, criteriaQuery, root))).getSingleResult();
+		return entityManager.createQuery(criteriaQuery.select(Criterias.INSTANCE.buildQuery(criteria, criteriaBuilder, criteriaQuery, root))).getSingleResult();
 	}
 
 	public static <T> List<T> find(EntityManager entityManager, EntityCriteria<T> criteria, SortedMap<String, Boolean> orders) {
-		return find(entityManager, criteria, orders, -1, -1);
+		return Criterias.createTypedQuery(entityManager, criteria, orders).getResultList();
 	}
 
 	public static <T> List<T> find(EntityManager entityManager, EntityCriteria<T> criteria, SortedMap<String, Boolean> orders, int firstResult, int maxResults) {
+		TypedQuery<T> query = Criterias.createTypedQuery(entityManager, criteria, orders);
+		if (firstResult >= 0) {
+			query.setFirstResult(firstResult);
+		}
+		if (maxResults >= 0) {
+			query.setMaxResults(maxResults);
+		}
+		return query.getResultList();
+	}
+
+	private static <T> TypedQuery<T> createTypedQuery(EntityManager entityManager, EntityCriteria<T> criteria, SortedMap<String, Boolean> orders) {
 		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(criteria.getEntityClass());
 		Root<T> root = criteriaQuery.from(criteria.getEntityClass());
@@ -188,15 +199,7 @@ public class Criterias {
 			}
 		}
 
-		TypedQuery<T> query = entityManager.createQuery(criteriaQuery.select(INSTANCE.buildQuery(criteria, criteriaBuilder, criteriaQuery, root)).distinct(true));
-		if (firstResult >= 0) {
-			query.setFirstResult(firstResult);
-		}
-		if (maxResults >= 0) {
-			query.setMaxResults(maxResults);
-		}
-		return query.getResultList();
-
+		return entityManager.createQuery(criteriaQuery.select(Criterias.INSTANCE.buildQuery(criteria, criteriaBuilder, criteriaQuery, root)).distinct(true));
 	}
 
 	public static <T> long count(EntityManager entityManager, EntityCriteria<T> criteria) {
@@ -204,7 +207,7 @@ public class Criterias {
 		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
 		Root<T> root = criteriaQuery.from(criteria.getEntityClass());
 
-		return entityManager.createQuery(criteriaQuery.select(criteriaBuilder.count(INSTANCE.buildQuery(criteria, criteriaBuilder, criteriaQuery, root)))).getSingleResult();
+		return entityManager.createQuery(criteriaQuery.select(criteriaBuilder.count(Criterias.INSTANCE.buildQuery(criteria, criteriaBuilder, criteriaQuery, root)))).getSingleResult();
 	}
 
 	public static <T> And<T> and() {
