@@ -34,6 +34,13 @@
 					<source>1.7</source>
 					<target>1.7</target>
 				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>com.github.nagaseyasuhito</groupId>
+						<artifactId>fatsia</artifactId>
+						<version>1.2.8-SNAPSHOT</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -59,28 +66,6 @@
 						<version>1.5</version>
 					</dependency>
 				</dependencies>
-			</plugin>
-
-			<!-- for test -->
-			<plugin>
-				<groupId>org.bsc.maven</groupId>
-				<artifactId>maven-processor-plugin</artifactId>
-				<version>2.0.5</version>
-				<executions>
-					<execution>
-						<id>process-test</id>
-						<goals>
-							<goal>process-test</goal>
-						</goals>
-						<phase>generate-test-sources</phase>
-						<configuration>
-							<compilerArguments>-encoding ${project.build.sourceEncoding}</compilerArguments>
-							<processors>
-								<processor>com.github.nagaseyasuhito.fatsia.FatsiaAnnotationProcessor</processor>
-							</processors>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
