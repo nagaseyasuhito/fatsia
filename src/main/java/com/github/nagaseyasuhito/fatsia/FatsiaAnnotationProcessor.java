@@ -133,7 +133,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 
 			@Override
 			public String apply(ExecutableElement input) {
-				return "\"" + input.getParameters().get(0).getSimpleName() + "\"";
+				return "\"" + FatsiaAnnotationProcessor.this.obtainParameterName(input) + "\"";
 			}
 		})));
 		buffer.append("); }");
