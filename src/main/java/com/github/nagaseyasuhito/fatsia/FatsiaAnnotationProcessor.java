@@ -106,7 +106,8 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 				continue;
 			}
 
-			CharSequence parameter = setter.getParameters().get(0).getSimpleName();
+			CharSequence parameter = this.obtainParameterName(setter);
+
 			DeclaredType type = (DeclaredType) getter.getReturnType();
 
 			buffer.append("private " + this.buildType(type) + parameter + (this.isCollection(type) ? " = " + Criterias.class.getCanonicalName() + ".or();" : ";"));
@@ -186,5 +187,10 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 				return methodName.substring(methodName.startsWith("get") ? 3 : 2).equals(setter.getSimpleName().toString().substring(3));
 			}
 		}, null);
+	}
+
+	public CharSequence obtainParameterName(ExecutableElement setter) {
+		CharSequence fieldName = setter.getSimpleName().subSequence(3, setter.getSimpleName().length());
+		return fieldName.subSequence(0, 1).toString().toLowerCase() + fieldName.subSequence(1, fieldName.length());
 	}
 }
