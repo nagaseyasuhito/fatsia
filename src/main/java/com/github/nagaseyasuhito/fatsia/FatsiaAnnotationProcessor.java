@@ -102,7 +102,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 
 		for (ExecutableElement setter : setters) {
 			ExecutableElement getter = this.obtainPairedGetter(setter, methods);
-			if (getter == null) {
+			if (getter == null || !(getter.getReturnType() instanceof DeclaredType)) {
 				continue;
 			}
 
