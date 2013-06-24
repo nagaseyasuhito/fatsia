@@ -103,7 +103,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 
 		for (ExecutableElement setter : setters) {
 			ExecutableElement getter = this.obtainPairedGetter(setter, methods);
-			if (getter == null || !(getter.getReturnType() instanceof DeclaredType) || this.isBlob((DeclaredType) getter.getReturnType())) {
+			if (getter == null || !(getter.getReturnType() instanceof DeclaredType)) {
 				continue;
 			}
 
@@ -175,6 +175,9 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 			return false;
 		}
 		if (element.getParameters().size() != 1) {
+			return false;
+		}
+		if (this.isBlob((DeclaredType) element.getParameters().get(0).asType())) {
 			return false;
 		}
 

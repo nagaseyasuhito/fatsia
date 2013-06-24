@@ -1,5 +1,6 @@
 package com.github.nagaseyasuhito.fatsia.entity;
 
+import java.sql.Blob;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -51,6 +52,9 @@ public class User {
 	@Temporal(TemporalType.DATE)
 	private Date birthDate;
 
+	@Column
+	private Blob icon;
+
 	public Long getId() {
 		return this.id;
 	}
@@ -89,5 +93,13 @@ public class User {
 
 	public void setBirthDate(Date birthDate) {
 		this.birthDate = birthDate;
+	}
+
+	public Blob getIcon() {
+		return this.icon;
+	}
+
+	public void setIcon(Blob icon) {
+		this.icon = icon;
 	}
 }
