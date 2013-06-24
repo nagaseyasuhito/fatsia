@@ -4,7 +4,7 @@
 	<groupId>com.github.nagaseyasuhito</groupId>
 	<artifactId>fatsia</artifactId>
 	<packaging>jar</packaging>
-	<version>1.2.16-SNAPSHOT</version>
+	<version>1.2.17-SNAPSHOT</version>
 
 	<name>fatsia</name>
 	<url>http://github.com/nagaseyasuhito/fatsia</url>
