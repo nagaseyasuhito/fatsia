@@ -1,6 +1,7 @@
 package com.github.nagaseyasuhito.fatsia;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
@@ -102,7 +103,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 
 		for (ExecutableElement setter : setters) {
 			ExecutableElement getter = this.obtainPairedGetter(setter, methods);
-			if (getter == null || !(getter.getReturnType() instanceof DeclaredType)) {
+			if (getter == null || !(getter.getReturnType() instanceof DeclaredType) || this.isInputStream((DeclaredType) getter.getReturnType())) {
 				continue;
 			}
 
@@ -156,6 +157,14 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 
 		TypeElement collection = elements.getTypeElement(Collection.class.getCanonicalName());
 		return types.isAssignable(type, types.erasure(collection.asType()));
+	}
+
+	public boolean isInputStream(DeclaredType type) {
+		Types types = this.processingEnv.getTypeUtils();
+		Elements elements = this.processingEnv.getElementUtils();
+
+		TypeElement inputStream = elements.getTypeElement(InputStream.class.getCanonicalName());
+		return types.isAssignable(type, types.erasure(inputStream.asType()));
 	}
 
 	public boolean isSetter(ExecutableElement element) {
