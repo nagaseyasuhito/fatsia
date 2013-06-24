@@ -1,8 +1,8 @@
 package com.github.nagaseyasuhito.fatsia;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Writer;
+import java.sql.Blob;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -103,7 +103,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 
 		for (ExecutableElement setter : setters) {
 			ExecutableElement getter = this.obtainPairedGetter(setter, methods);
-			if (getter == null || !(getter.getReturnType() instanceof DeclaredType) || this.isInputStream((DeclaredType) getter.getReturnType())) {
+			if (getter == null || !(getter.getReturnType() instanceof DeclaredType) || this.isBlob((DeclaredType) getter.getReturnType())) {
 				continue;
 			}
 
@@ -159,12 +159,12 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 		return types.isAssignable(type, types.erasure(collection.asType()));
 	}
 
-	public boolean isInputStream(DeclaredType type) {
+	public boolean isBlob(DeclaredType type) {
 		Types types = this.processingEnv.getTypeUtils();
 		Elements elements = this.processingEnv.getElementUtils();
 
-		TypeElement inputStream = elements.getTypeElement(InputStream.class.getCanonicalName());
-		return types.isAssignable(type, types.erasure(inputStream.asType()));
+		TypeElement blob = elements.getTypeElement(Blob.class.getCanonicalName());
+		return types.isAssignable(type, types.erasure(blob.asType()));
 	}
 
 	public boolean isSetter(ExecutableElement element) {
