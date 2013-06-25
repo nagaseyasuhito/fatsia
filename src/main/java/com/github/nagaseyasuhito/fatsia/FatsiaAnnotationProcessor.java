@@ -19,6 +19,7 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.persistence.Entity;
@@ -103,7 +104,7 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 
 		for (ExecutableElement setter : setters) {
 			ExecutableElement getter = this.obtainPairedGetter(setter, methods);
-			if (getter == null || !(getter.getReturnType() instanceof DeclaredType)) {
+			if (getter == null) {
 				continue;
 			}
 
@@ -177,7 +178,12 @@ public class FatsiaAnnotationProcessor extends AbstractProcessor {
 		if (element.getParameters().size() != 1) {
 			return false;
 		}
-		if (this.isBlob((DeclaredType) element.getParameters().get(0).asType())) {
+
+		TypeMirror type = element.getParameters().get(0).asType();
+		if (!(type instanceof DeclaredType)) {
+			return false;
+		}
+		if (this.isBlob((DeclaredType) type)) {
 			return false;
 		}
 

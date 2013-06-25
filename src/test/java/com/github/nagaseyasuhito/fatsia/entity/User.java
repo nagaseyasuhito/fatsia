@@ -55,6 +55,9 @@ public class User {
 	@Column
 	private Blob icon;
 
+	@Column
+	private byte[] data;
+
 	public Long getId() {
 		return this.id;
 	}
@@ -101,5 +104,13 @@ public class User {
 
 	public void setIcon(Blob icon) {
 		this.icon = icon;
+	}
+
+	public byte[] getData() {
+		return this.data;
+	}
+
+	public void setData(byte[] data) {
+		this.data = data;
 	}
 }
